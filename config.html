@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#071416">
+<title>Configurações — Meus Ingressos</title>
+<link rel="manifest" href="../manifest.json">
+<style>
+/* =============================================
+   RESET & BASE
+   ============================================= */
+*{box-sizing:border-box;margin:0;padding:0;}
+
+:root{
+  --bg-dark:   #071416;
+  --bg-card:   #0d1f22;
+  --bg-input:  #0f2426;
+  --accent:    #03ddd2;
+  --accent-dim:#03ddd222;
+  --text:      #e8f0f1;
+  --text-dim:  #6a8a8e;
+  --danger:    #e05555;
+  --success:   #22c87a;
+  --radius:    12px;
+  --font:      -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+}
+
+body{
+  font-family:var(--font);
+  background:var(--bg-dark);
+  color:var(--text);
+  min-height:100dvh;
+  overflow-x:hidden;
+  padding-bottom:env(safe-area-inset-bottom);
+}
+
+/* =============================================
+   HEADER
+   ============================================= */
+.cfg-header{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:16px 20px;
+  padding-top:max(16px, env(safe-area-inset-top));
+  background:rgba(7,20,22,0.95);
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+  position:sticky;
+  top:0;
+  z-index:10;
+  border-bottom:1px solid rgba(255,255,255,0.06);
+}
+
+.cfg-back{
+  text-decoration:none;
+  color:var(--accent);
+  font-size:22px;
+  min-width:44px;
+  min-height:44px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:8px;
+  flex-shrink:0;
+}
+
+.cfg-header h1{
+  font-size:18px;
+  font-weight:600;
+}
+
+/* =============================================
+   CONTAINER
+   ============================================= */
+.cfg-body{
+  padding:20px;
+  padding-left:max(20px, env(safe-area-inset-left));
+  padding-right:max(20px, env(safe-area-inset-right));
+  max-width:600px;
+  margin:0 auto;
+}
+
+/* =============================================
+   SECTIONS
+   ============================================= */
+.section{
+  background:var(--bg-card);
+  border-radius:var(--radius);
+  padding:18px;
+  margin-bottom:16px;
+  border:1px solid rgba(255,255,255,0.05);
+}
+
+.section-title{
+  font-size:11px;
+  font-weight:600;
+  letter-spacing:1px;
+  text-transform:uppercase;
+  color:var(--accent);
+  margin-bottom:16px;
+}
+
+/* =============================================
+   FIELD
+   ============================================= */
+.field{
+  margin-bottom:14px;
+}
+.field:last-child{margin-bottom:0;}
+
+.field label{
+  display:block;
+  font-size:11px;
+  color:var(--text-dim);
+  letter-spacing:0.5px;
+  text-transform:uppercase;
+  margin-bottom:6px;
+}
+
+.field input,
+.field textarea,
+.field select{
+  width:100%;
+  background:var(--bg-input);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:8px;
+  color:var(--text);
+  font-family:var(--font);
+  font-size:15px;
+  padding:12px 14px;
+  outline:none;
+  transition:border-color 0.2s;
+  -webkit-appearance:none;
+  appearance:none;
+}
+
+.field input:focus,
+.field textarea:focus,
+.field select:focus{
+  border-color:var(--accent);
+}
+
+.field textarea{
+  resize:vertical;
+  min-height:72px;
+}
+
+/* Imagem preview */
+.img-preview-wrap{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin-top:8px;
+}
+
+.img-preview{
+  width:64px;
+  height:64px;
+  border-radius:8px;
+  object-fit:cover;
+  background:var(--bg-input);
+  border:1px solid rgba(255,255,255,0.08);
+  flex-shrink:0;
+}
+
+.img-upload-btn{
+  flex:1;
+  background:var(--accent-dim);
+  color:var(--accent);
+  border:none;
+  border-radius:8px;
+  padding:10px 14px;
+  font-size:13px;
+  font-weight:500;
+  cursor:pointer;
+  text-align:center;
+  min-height:44px;
+}
+
+/* =============================================
+   TICKET TABS
+   ============================================= */
+.ticket-tabs{
+  display:flex;
+  gap:8px;
+  overflow-x:auto;
+  padding-bottom:2px;
+  margin-bottom:16px;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:none;
+}
+.ticket-tabs::-webkit-scrollbar{display:none;}
+
+.ticket-tab{
+  flex-shrink:0;
+  background:var(--bg-input);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:8px;
+  color:var(--text-dim);
+  font-size:13px;
+  padding:8px 16px;
+  cursor:pointer;
+  min-height:44px;
+  transition:0.2s;
+}
+
+.ticket-tab.active{
+  background:var(--accent-dim);
+  border-color:var(--accent);
+  color:var(--accent);
+  font-weight:600;
+}
+
+.ticket-panel{display:none;}
+.ticket-panel.active{display:block;}
+
+/* Botão adicionar / remover ingresso */
+.ticket-controls{
+  display:flex;
+  gap:8px;
+  margin-bottom:12px;
+}
+
+.btn-add-ticket,
+.btn-remove-ticket{
+  flex:1;
+  border:none;
+  border-radius:8px;
+  padding:0 14px;
+  font-size:13px;
+  font-weight:600;
+  cursor:pointer;
+  min-height:44px;
+}
+
+.btn-add-ticket{
+  background:var(--accent-dim);
+  color:var(--accent);
+}
+
+.btn-remove-ticket{
+  background:rgba(224,85,85,0.15);
+  color:var(--danger);
+}
+
+/* =============================================
+   ACTIONS
+   ============================================= */
+.actions{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  margin-top:8px;
+}
+
+.btn-save{
+  background:var(--accent);
+  color:#071416;
+  border:none;
+  border-radius:var(--radius);
+  font-size:16px;
+  font-weight:700;
+  min-height:52px;
+  cursor:pointer;
+  transition:opacity 0.2s;
+}
+
+.btn-save:active{opacity:0.8;}
+
+.btn-reset{
+  background:transparent;
+  color:var(--danger);
+  border:1px solid rgba(224,85,85,0.3);
+  border-radius:var(--radius);
+  font-size:14px;
+  font-weight:500;
+  min-height:48px;
+  cursor:pointer;
+}
+
+/* =============================================
+   TOAST
+   ============================================= */
+#toast{
+  position:fixed;
+  bottom:max(28px, env(safe-area-inset-bottom));
+  left:50%;
+  transform:translateX(-50%) translateY(80px);
+  background:var(--success);
+  color:#071416;
+  font-weight:700;
+  font-size:14px;
+  padding:12px 24px;
+  border-radius:100px;
+  transition:transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+  pointer-events:none;
+  white-space:nowrap;
+  z-index:100;
+}
+
+#toast.show{
+  transform:translateX(-50%) translateY(0);
+}
+
+/* Hidden file input */
+input[type="file"]{display:none;}
+</style>
+</head>
+<body>
+
+<header class="cfg-header">
+  <a href="index.html" class="cfg-back" aria-label="Voltar">←</a>
+  <h1>Configurações</h1>
+</header>
+
+<div class="cfg-body">
+
+  <!-- EVENTO -->
+  <div class="section">
+    <div class="section-title">📅 Evento</div>
+
+    <div class="field">
+      <label>Nome do Evento</label>
+      <input type="text" id="eventName" placeholder="Ex: Lollapalooza Brasil 2026">
+    </div>
+
+    <div class="field">
+      <label>Data</label>
+      <input type="text" id="eventDate" placeholder="Ex: 20/3/2026">
+    </div>
+
+    <div class="field">
+      <label>Horário de Abertura</label>
+      <input type="text" id="eventTime" placeholder="Ex: 11:00">
+    </div>
+
+    <div class="field">
+      <label>Local / Venue</label>
+      <input type="text" id="eventVenue" placeholder="Ex: Autódromo de Interlagos">
+    </div>
+  </div>
+
+  <!-- IMAGENS -->
+  <div class="section">
+    <div class="section-title">🖼️ Imagens</div>
+
+    <div class="field">
+      <label>Imagem do Card (lista de eventos)</label>
+      <div class="img-preview-wrap">
+        <img id="thumbPreview" class="img-preview" src="" alt="Thumb">
+        <button class="img-upload-btn" onclick="document.getElementById('thumbFile').click()">
+          📁 Escolher imagem
+        </button>
+        <input type="file" id="thumbFile" accept="image/*">
+      </div>
+    </div>
+
+    <div class="field" style="margin-top:12px;">
+      <label>Imagem do Banner (tela do ingresso)</label>
+      <div class="img-preview-wrap">
+        <img id="bannerPreview" class="img-preview" src="" alt="Banner">
+        <button class="img-upload-btn" onclick="document.getElementById('bannerFile').click()">
+          📁 Escolher imagem
+        </button>
+        <input type="file" id="bannerFile" accept="image/*">
+      </div>
+    </div>
+  </div>
+
+  <!-- INGRESSOS -->
+  <div class="section">
+    <div class="section-title">🎟️ Ingressos</div>
+
+    <div class="ticket-controls">
+      <button class="btn-add-ticket" onclick="addTicket()">+ Adicionar Ingresso</button>
+      <button class="btn-remove-ticket" onclick="removeLastTicket()">− Remover Último</button>
+    </div>
+
+    <div class="ticket-tabs" id="ticketTabs"></div>
+    <div id="ticketPanels"></div>
+  </div>
+
+  <!-- AÇÕES -->
+  <div class="section">
+    <div class="actions">
+      <button class="btn-save" onclick="saveAll()">💾 Salvar Configurações</button>
+      <button class="btn-reset" onclick="confirmReset()">🔄 Restaurar Padrões</button>
+    </div>
+  </div>
+
+</div>
+
+<div id="toast">✓ Configurações salvas!</div>
+
+<script src="config.js"></script>
+<script>
+// =============================================
+// Estado local
+// =============================================
+let cfg = getConfig();
+
+// =============================================
+// Init — preencher todos os campos com cfg
+// =============================================
+function init() {
+  const ev = cfg.event;
+
+  document.getElementById('eventName').value  = ev.name;
+  document.getElementById('eventDate').value  = ev.date;
+  document.getElementById('eventTime').value  = ev.time;
+  document.getElementById('eventVenue').value = ev.venue;
+
+  document.getElementById('thumbPreview').src  = ev.thumbImage;
+  document.getElementById('bannerPreview').src = ev.bannerImage;
+
+  renderTicketTabs();
+}
+
+// =============================================
+// Ticket tabs
+// =============================================
+let activeTicket = 0;
+
+function renderTicketTabs() {
+  const tabsEl   = document.getElementById('ticketTabs');
+  const panelsEl = document.getElementById('ticketPanels');
+
+  tabsEl.innerHTML   = '';
+  panelsEl.innerHTML = '';
+
+  cfg.tickets.forEach((t, i) => {
+    // Tab
+    const tab = document.createElement('button');
+    tab.className   = 'ticket-tab' + (i === activeTicket ? ' active' : '');
+    tab.textContent = `Ingresso ${i + 1}`;
+    tab.onclick     = () => selectTicket(i);
+    tabsEl.appendChild(tab);
+
+    // Panel
+    const panel = document.createElement('div');
+    panel.className = 'ticket-panel' + (i === activeTicket ? ' active' : '');
+    panel.innerHTML = ticketPanelHTML(t, i);
+    panelsEl.appendChild(panel);
+  });
+}
+
+function ticketPanelHTML(t, i) {
+  return `
+    <div class="field">
+      <label>Titular do Ingresso</label>
+      <input type="text" id="t${i}_holder" value="${esc(t.holder)}" placeholder="Nome completo">
+    </div>
+    <div class="field">
+      <label>CPF</label>
+      <input type="text" id="t${i}_cpf" value="${esc(t.cpf)}" placeholder="000.000.000-00">
+    </div>
+    <div class="field">
+      <label>Setor</label>
+      <input type="text" id="t${i}_sector" value="${esc(t.sector)}" placeholder="Ex: Lolla Day">
+    </div>
+    <div class="field">
+      <label>Taxa / Tipo</label>
+      <textarea id="t${i}_rate">${esc(t.rate)}</textarea>
+    </div>
+    <div class="field">
+      <label>Seção</label>
+      <input type="text" id="t${i}_section" value="${esc(t.section)}">
+    </div>
+    <div class="field">
+      <label>Fileira</label>
+      <input type="text" id="t${i}_row" value="${esc(t.row)}" placeholder="Ex: Não numerado">
+    </div>
+    <div class="field">
+      <label>Abertura</label>
+      <input type="text" id="t${i}_open" value="${esc(t.open)}" placeholder="Ex: 11:00">
+    </div>
+    <div class="field">
+      <label>Início</label>
+      <input type="text" id="t${i}_start" value="${esc(t.start)}" placeholder="Ex: 11:00">
+    </div>
+    <div class="field">
+      <label>Último Acesso</label>
+      <input type="text" id="t${i}_lastAccess" value="${esc(t.lastAccess)}" placeholder="Ex: Últ. Acesso 09:42">
+    </div>
+  `;
+}
+
+function selectTicket(i) {
+  activeTicket = i;
+  renderTicketTabs();
+}
+
+function addTicket() {
+  const last = cfg.tickets[cfg.tickets.length - 1];
+  const defaultQR = `assets/qr${cfg.tickets.length + 1}.png`;
+  cfg.tickets.push({ ...last, id: cfg.tickets.length + 1, qrImage: defaultQR });
+  activeTicket = cfg.tickets.length - 1;
+  renderTicketTabs();
+}
+
+function removeLastTicket() {
+  if (cfg.tickets.length <= 1) {
+    showToast('Deve haver pelo menos 1 ingresso.', true);
+    return;
+  }
+  cfg.tickets.pop();
+  if (activeTicket >= cfg.tickets.length) activeTicket = cfg.tickets.length - 1;
+  renderTicketTabs();
+}
+
+// =============================================
+// Coletar dados dos campos para cfg
+// =============================================
+function collectForm() {
+  cfg.event.name      = document.getElementById('eventName').value.trim();
+  cfg.event.date      = document.getElementById('eventDate').value.trim();
+  cfg.event.time      = document.getElementById('eventTime').value.trim();
+  cfg.event.venue     = document.getElementById('eventVenue').value.trim();
+
+  cfg.tickets.forEach((t, i) => {
+    t.holder     = document.getElementById(`t${i}_holder`)?.value.trim()     ?? t.holder;
+    t.cpf        = document.getElementById(`t${i}_cpf`)?.value.trim()        ?? t.cpf;
+    t.sector     = document.getElementById(`t${i}_sector`)?.value.trim()     ?? t.sector;
+    t.rate       = document.getElementById(`t${i}_rate`)?.value.trim()       ?? t.rate;
+    t.section    = document.getElementById(`t${i}_section`)?.value.trim()    ?? t.section;
+    t.row        = document.getElementById(`t${i}_row`)?.value.trim()        ?? t.row;
+    t.open       = document.getElementById(`t${i}_open`)?.value.trim()       ?? t.open;
+    t.start      = document.getElementById(`t${i}_start`)?.value.trim()      ?? t.start;
+    t.lastAccess = document.getElementById(`t${i}_lastAccess`)?.value.trim() ?? t.lastAccess;
+  });
+}
+
+// =============================================
+// Salvar
+// =============================================
+function saveAll() {
+  collectForm();
+  if (saveConfig(cfg)) {
+    showToast('✓ Configurações salvas!');
+  } else {
+    showToast('Erro ao salvar.', true);
+  }
+}
+
+// =============================================
+// Reset
+// =============================================
+function confirmReset() {
+  if (confirm('Restaurar todas as configurações para o padrão? Isso apagará suas alterações.')) {
+    resetConfig();
+    cfg = getConfig();
+    init();
+    showToast('Padrões restaurados!');
+  }
+}
+
+// =============================================
+// Upload de imagens (converte para base64 para localStorage)
+// =============================================
+function setupImageUpload(inputId, previewId, configKey) {
+  const input   = document.getElementById(inputId);
+  const preview = document.getElementById(previewId);
+
+  input.addEventListener('change', () => {
+    const file = input.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = e => {
+      const dataUrl = e.target.result;
+      preview.src   = dataUrl;
+      cfg.event[configKey] = dataUrl;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+setupImageUpload('thumbFile',   'thumbPreview',   'thumbImage');
+setupImageUpload('bannerFile',  'bannerPreview',  'bannerImage');
+
+// =============================================
+// Toast
+// =============================================
+let toastTimer;
+function showToast(msg, isError = false) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.style.background = isError ? '#e05555' : '#22c87a';
+  el.style.color      = isError ? '#fff'   : '#071416';
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2800);
+}
+
+// =============================================
+// Util — escapa HTML para uso em innerHTML
+// =============================================
+function esc(str) {
+  return String(str ?? '')
+    .replace(/&/g,'&amp;')
+    .replace(/"/g,'&quot;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;');
+}
+
+// =============================================
+// Start
+// =============================================
+init();
+</script>
+</body>
+</html>

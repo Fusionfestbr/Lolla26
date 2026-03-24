@@ -1,54 +1,119 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Meus ingressos</title>
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#071416">
+  <!-- PWA -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Ingressos">
+  <link rel="apple-touch-icon" href="assets/acdc.png">
+  <link rel="manifest" href="../manifest.json">
+  <title>Meus Ingressos</title>
   <link rel="stylesheet" href="home.css">
 </head>
-<body>
 
-<div class="container">
+<body>
 
   <!-- HEADER -->
   <header class="header">
     <h1>Meus ingressos</h1>
-
-    <div class="icons">
-      <div class="icon"></div>
-      <div class="icon"></div>
+    <div class="header-actions">
+      <a href="config.html" class="btn-config" aria-label="Configurações">⚙</a>
     </div>
   </header>
 
-  <!-- TABS -->
-  <div class="tabs">
-    <button class="tab active">Próximos</button>
-    <button class="tab">Anteriores</button>
-    
-  </div>
+  <!-- CONTEÚDO DINÂMICO -->
+  <div class="container">
+    <div class="content">
 
-  <!-- MÊS -->
-  <h2 class="month">Março 2026</h2>
-
-
-  <a href="ingresso.html" class="event-card">
-    
-    <img src="assets/lolaini.png" class="thumb">
-
-    <div class="event-info">
-      <div class="top-line">
-        <span class="qtd">5 ingressos</span>
-        <span class="date">Sexta 20 11:00hs</span>
+      <!-- TABS -->
+      <div class="tabs">
+        <button class="tab active" id="tabProximos" onclick="switchTab('proximos')">Próximos</button>
+        <button class="tab" id="tabAnteriores" onclick="switchTab('anteriores')">Anteriores</button>
       </div>
 
-      <h3>Lollapalooza Brasil 2026</h3>
-      <p>Autodromo de Interlagos</p>
+      <!-- LISTA DE EVENTOS -->
+      <h2 class="month" id="monthLabel"></h2>
+      <div id="eventList"></div>
+
     </div>
+  </div>
 
-  </a>
+  <script src="config.js"></script>
+  <script>
+    // ---- Tab switching ----
+    function switchTab(tab) {
+      document.getElementById('tabProximos').classList.toggle('active', tab === 'proximos');
+      document.getElementById('tabAnteriores').classList.toggle('active', tab === 'anteriores');
+      // "Anteriores" mostra estado vazio nesta demo
+      document.getElementById('eventList').style.display = tab === 'proximos' ? '' : 'none';
+      document.getElementById('monthLabel').style.display = tab === 'proximos' ? '' : 'none';
+    }
 
-</div>
+    // ---- Render event card from config ----
+    function render() {
+      const cfg = getConfig();
+      const ev = cfg.event;
 
+      // Month label derived from date string
+      document.getElementById('monthLabel').textContent = formatMonthLabel(ev.date);
+
+      const qtd = cfg.tickets.length;
+      const label = qtd === 1 ? '1 ingresso' : `${qtd} ingressos`;
+
+      // Format date display
+      const dateShort = formatDateShort(ev.date, ev.time);
+
+      document.getElementById('eventList').innerHTML = `
+      <a href="ingresso.html" class="event-card">
+        <img src="${ev.thumbImage}" class="thumb" alt="${ev.name}">
+        <div class="event-info">
+          <div class="top-line">
+            <span class="qtd">${label}</span>
+            <span class="date">${dateShort}</span>
+          </div>
+          <h3>${ev.name}</h3>
+          <p>${ev.venue}</p>
+        </div>
+      </a>
+    `;
+    }
+
+    // e.g. "20/3/2026" + "11:00" → "Sexta 20 11:00hs"
+    function formatDateShort(dateStr, time) {
+      try {
+        const parts = dateStr.split('/');
+        if (parts.length < 2) return `${dateStr} ${time}hs`;
+        const d = parseInt(parts[0]);
+        const m = parseInt(parts[1]) - 1;
+        const y = parseInt(parts[2]) || new Date().getFullYear();
+        const date = new Date(y, m, d);
+        const days = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+        return `${days[date.getDay()]} ${d} ${time}hs`;
+      } catch {
+        return `${dateStr} ${time}hs`;
+      }
+    }
+
+    // e.g. "20/3/2026" → "Março 2026"
+    function formatMonthLabel(dateStr) {
+      const months = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+        'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+      try {
+        const parts = dateStr.split('/');
+        const m = parseInt(parts[1]) - 1;
+        const y = parseInt(parts[2]) || new Date().getFullYear();
+        return `${months[m]} ${y}`;
+      } catch {
+        return dateStr;
+      }
+    }
+
+    render();
+  </script>
 </body>
+
 </html>
